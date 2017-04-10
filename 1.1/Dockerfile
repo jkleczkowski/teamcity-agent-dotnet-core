@@ -1,10 +1,6 @@
 FROM jetbrains/teamcity-agent
 LABEL maintainer "Jacek Kleczkowski <jacek@ksoft.biz>"
 
-VOLUME /opt/buildagent/work
-VOLUME /opt/buildagent/logs
-VOLUME /data/teamcity_agent/conf
-
 # image is based on Ubuntu 15 - fix for .NET Core installation
 RUN apt-get install wget -y && \
     wget http://launchpadlibrarian.net/201330288/libicu52_52.1-8_amd64.deb && \
@@ -26,5 +22,14 @@ RUN apt-get install mono-devel mono-xbuild libmono-addins-* -y
 RUN apt-get install npm -y && \
     npm install npm -g && \
     npm install bower gulp -g
+
+VOLUME /opt/buildagent/work
+VOLUME /opt/buildagent/logs
+VOLUME /data/teamcity_agent/conf
+VOLUME /opt/buildagent/plugins
+
+ENV DOCKER_HOST ""
+ENV DOCKER_BIN "/usr/bin/docker"
+
 
 
