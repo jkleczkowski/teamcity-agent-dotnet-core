@@ -11,7 +11,10 @@ RUN sh -c 'echo "deb [arch=amd64] http://apt-mo.trafficmanager.net/repos/dotnet-
     apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 417A0893 && \
     apt-get update && \
     apt-get install mc -y && \
-    apt-get upgrade -y
+    apt-get upgrade -y && \
+    export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true 
+
+RUN apt-get install tzdata -y 
 
 # install .NET Core
 ENV DOTNET_VER "dotnet-sdk-2.0.0"
