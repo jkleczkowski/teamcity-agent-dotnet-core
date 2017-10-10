@@ -2,8 +2,6 @@ FROM jetbrains/teamcity-agent
 LABEL maintainer "Jacek Kleczkowski <jacek@ksoft.biz>"
 
 # image is based on Ubuntu 15 - fix for .NET Core installation
-#RUN apt-get install wget -y && \
-#    wget http://launchpadlibrarian.net/201330288/libicu52_52.1-8_amd64.deb && \
 ADD libicu52_52.1-8_amd64.deb /tmp/libicu52_52.1-8_amd64.deb
 RUN   dpkg -i /tmp/libicu52_52.1-8_amd64.deb
 
@@ -38,6 +36,3 @@ VOLUME /opt/buildagent/plugins
 
 ENV DOCKER_HOST ""
 ENV DOCKER_BIN "/usr/bin/docker"
-
-
-
