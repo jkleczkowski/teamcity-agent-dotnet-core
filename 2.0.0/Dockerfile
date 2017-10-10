@@ -2,17 +2,19 @@ FROM jetbrains/teamcity-agent
 LABEL maintainer "Jacek Kleczkowski <jacek@ksoft.biz>"
 
 # image is based on Ubuntu 15 - fix for .NET Core installation
-RUN apt-get install wget -y && \
-    wget http://launchpadlibrarian.net/201330288/libicu52_52.1-8_amd64.deb && \
-    dpkg -i libicu52_52.1-8_amd64.deb
+#RUN apt-get install wget -y && \
+#    wget http://launchpadlibrarian.net/201330288/libicu52_52.1-8_amd64.deb && \
+ADD libicu52_52.1-8_amd64.deb /tmp/libicu52_52.1-8_amd64.deb
+RUN   dpkg -i /tmp/libicu52_52.1-8_amd64.deb
 
 # install .NET Core
 RUN sh -c 'echo "deb [arch=amd64] http://apt-mo.trafficmanager.net/repos/dotnet-release/ trusty main" > /etc/apt/sources.list.d/dotnetdev.list' && \
     apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 417A0893 && \
     apt-get update && \
     apt-get install mc -y && \
-    apt-get upgrade -y && \
     export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true 
+
+RUN apt-get upgrade -y
 
 RUN apt-get install tzdata -y 
 
@@ -22,7 +24,7 @@ ENV DOTNET_VER "dotnet-sdk-2.0.0"
 RUN apt-get install ${DOTNET_VER} -y
 
 # install mono-devel
-RUN apt-get install mono-devel mono-xbuild libmono-addins-* -y 
+RUN apt-get install mono-devel mono-dbg mono-xbuild libmono-addins-* -y 
     
 # install web tools which are required for "dotnet publish" command
 RUN apt-get install npm -y && \
