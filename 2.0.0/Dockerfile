@@ -25,7 +25,10 @@ RUN apt-get install ${DOTNET_VER} -y
 RUN apt-get install mono-devel mono-dbg mono-xbuild libmono-addins-* -y 
     
 # install web tools which are required for "dotnet publish" command
-RUN apt-get install npm -y && \
+RUN apt remove nodejs npm
+RUN curl -sL https://deb.nodesource.com/setup_6.x | bash -
+
+RUN apt-get install nodejs npm -y && \
     npm install npm -g && \
     npm install bower gulp -g
 
