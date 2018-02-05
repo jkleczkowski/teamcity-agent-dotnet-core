@@ -3,7 +3,7 @@ LABEL maintainer "Jacek Kleczkowski <jacek@ksoft.biz>"
 
 # image is based on Ubuntu 15 - fix for .NET Core installation
 ADD libicu52_52.1-8_amd64.deb /tmp/libicu52_52.1-8_amd64.deb
-RUN   dpkg -i /tmp/libicu52_52.1-8_amd64.deb
+RUN dpkg -i /tmp/libicu52_52.1-8_amd64.deb
 
 # install .NET Core
 RUN sh -c 'echo "deb [arch=amd64] http://apt-mo.trafficmanager.net/repos/dotnet-release/ trusty main" > /etc/apt/sources.list.d/dotnetdev.list' && \
@@ -31,6 +31,14 @@ RUN curl -sL https://deb.nodesource.com/setup_6.x | bash -
 RUN apt-get install nodejs -y && \
     npm install npm -g && \
     npm install bower gulp -g
+
+# install ansible
+RUN echo "deb http://ppa.launchpad.net/ansible/ansible/ubuntu trusty main" >> /etc/apt/sources.list
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 93C4A3FD7BB9C367
+RUN apt-get update
+RUN apt-get install -y ansible
+
+RUN ansible --version
 
 VOLUME /opt/buildagent/work
 VOLUME /opt/buildagent/logs
