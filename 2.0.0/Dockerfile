@@ -9,16 +9,22 @@ RUN dpkg -i /tmp/libicu52_52.1-8_amd64.deb
 RUN sh -c 'echo "deb [arch=amd64] http://apt-mo.trafficmanager.net/repos/dotnet-release/ trusty main" > /etc/apt/sources.list.d/dotnetdev.list' && \
     apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 417A0893 && \
     apt-get update && \
-    apt-get install mc -y && \
-    export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true 
+    apt-get install mc wget -y && \
+    export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true && \
+    wget -q https://packages.microsoft.com/config/ubuntu/16.04/packages-microsoft-prod.deb && dpkg -i packages-microsoft-prod.deb
+
+RUN apt-get install apt-transport-https && apt-get update
 
 RUN apt-get upgrade -y
 
 RUN apt-get install tzdata -y 
 
 # install .NET Core
-ENV DOTNET_VER "dotnet-sdk-2.0.0"
-#(apt-cache search dotnet-dev-2.0.0 | awk '{print $1}') | sh 
+ENV DOTNET_VER "dotnet-sdk-2.1"
+
+#RUN apt-cache search dotnet-sdk
+
+#(apt-cache search dotnet-dev-2.1.0 | awk '{print $1}') | sh 
 RUN apt-get install ${DOTNET_VER} -y
 
 # install mono-devel
