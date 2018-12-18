@@ -1,6 +1,5 @@
 FROM jetbrains/teamcity-agent
 LABEL maintainer "Jacek Kleczkowski <jacek@ksoft.biz>"
-
 # image is based on Ubuntu 15 - fix for .NET Core installation
 ADD libicu52_52.1-8_amd64.deb /tmp/libicu52_52.1-8_amd64.deb
 RUN dpkg -i /tmp/libicu52_52.1-8_amd64.deb
@@ -11,28 +10,29 @@ RUN sh -c 'echo "deb [arch=amd64] http://apt-mo.trafficmanager.net/repos/dotnet-
     apt-get update && \
     apt-get install mc wget -y && \
     export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true && \
-    wget -q https://packages.microsoft.com/config/ubuntu/16.04/packages-microsoft-prod.deb && dpkg -i packages-microsoft-prod.deb
+#    wget -q https://packages.microsoft.com/config/ubuntu/16.04/packages-microsoft-prod.deb && dpkg -i packages-microsoft-prod.deb \
+    wget -q https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb && dpkg -i packages-microsoft-prod.deb 
 
-RUN apt-get install apt-transport-https && apt-get update
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y apt-transport-https apt-utils  && apt-get update
 
 RUN apt-get upgrade -y
 
-RUN apt-get install tzdata -y 
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y tzdata
 
 # install .NET Core
 ENV DOTNET_VER "dotnet-sdk-2.2"
 
-#RUN apt-cache search dotnet-sdk
+#RUN apt-cache search dotnet-sdk-2.2 aspnetcore-runtime-2.2
 
 #(apt-cache search dotnet-dev-2.2.0 | awk '{print $1}') | sh 
-RUN apt-get install ${DOTNET_VER} -y
+RUN DEBIAN_FRONTEND=noninteractive  apt-get install ${DOTNET_VER} -y
 
 # install mono-devel
-RUN apt-get install mono-devel mono-dbg mono-xbuild libmono-addins-* -y 
-    
+RUN DEBIAN_FRONTEND=noninteractive  apt-get install mono-devel mono-dbg mono-xbuild libmono-addins-* -y 
+
 # install web tools which are required for "dotnet publish" command
 RUN apt remove nodejs npm
-RUN curl -sL https://deb.nodesource.com/setup_6.x | bash -
+RUN curl -sL https://deb.nodesource.com/setup_8.x | bash -
 
 RUN apt-get install nodejs -y && \
     npm install npm -g && \
