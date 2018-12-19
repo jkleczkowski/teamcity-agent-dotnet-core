@@ -1,14 +1,17 @@
 FROM jetbrains/teamcity-agent
+
 LABEL maintainer "Jacek Kleczkowski <jacek@ksoft.biz>"
+
 # image is based on Ubuntu 15 - fix for .NET Core installation
 ADD libicu52_52.1-8_amd64.deb /tmp/libicu52_52.1-8_amd64.deb
+
 RUN dpkg -i /tmp/libicu52_52.1-8_amd64.deb
 
 # install .NET Core
 RUN sh -c 'echo "deb [arch=amd64] http://apt-mo.trafficmanager.net/repos/dotnet-release/ trusty main" > /etc/apt/sources.list.d/dotnetdev.list' && \
     apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 417A0893 && \
     apt-get update && \
-    apt-get install mc wget -y && \
+    apt-get install mc wget unzip -y && \
     export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true && \
 #    wget -q https://packages.microsoft.com/config/ubuntu/16.04/packages-microsoft-prod.deb && dpkg -i packages-microsoft-prod.deb \
     wget -q https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb && dpkg -i packages-microsoft-prod.deb 
@@ -44,6 +47,15 @@ RUN echo "deb http://ppa.launchpad.net/ansible/ansible/ubuntu trusty main" >> /e
     apt-get update && \
     apt-get install -y ansible
 
+#install ruby & packer
+RUN apt-get install -y ruby p7zip-full
+
+#installing packer
+RUN wget -q -O /tmp/packer.zip  https://releases.hashicorp.com/packer/1.3.3/packer_1.3.3_linux_amd64.zip && \
+    unzip /tmp/packer.zip -d /usr/bin && \
+    chmod 0755 /usr/bin/packer
+
+
 VOLUME /opt/buildagent/work
 VOLUME /opt/buildagent/logs
 VOLUME /data/teamcity_agent/conf
@@ -51,3 +63,6 @@ VOLUME /opt/buildagent/plugins
 
 ENV DOCKER_HOST ""
 ENV DOCKER_BIN "/usr/bin/docker"
+
+#RUN packer --version
+
