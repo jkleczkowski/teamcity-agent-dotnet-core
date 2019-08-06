@@ -6,12 +6,10 @@ ADD libicu52_52.1-8_amd64.deb /tmp/libicu52_52.1-8_amd64.deb
 RUN dpkg -i /tmp/libicu52_52.1-8_amd64.deb
 
 # install .NET Core
-RUN sh -c 'echo "deb [arch=amd64] http://apt-mo.trafficmanager.net/repos/dotnet-release/ trusty main" > /etc/apt/sources.list.d/dotnetdev.list' && \
-    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 417A0893 && \
-    apt-get update && \
+RUN apt-get update && \
     apt-get install mc wget -y && \
     export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true && \
-    wget -q https://packages.microsoft.com/config/ubuntu/16.04/packages-microsoft-prod.deb && dpkg -i packages-microsoft-prod.deb
+    wget -q https://packages.microsoft.com/config/ubuntu/19.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb && dpkg -i packages-microsoft-prod.deb
 
 RUN apt-get install apt-transport-https && apt-get update
 
@@ -29,7 +27,7 @@ RUN apt-get install ${DOTNET_VER} -y
 
 # install mono-devel
 RUN apt-get install mono-devel mono-dbg mono-xbuild libmono-addins-* -y 
-    
+
 # install web tools which are required for "dotnet publish" command
 RUN apt remove nodejs npm
 RUN curl -sL https://deb.nodesource.com/setup_6.x | bash -
