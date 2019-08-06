@@ -1,8 +1,10 @@
 FROM jetbrains/teamcity-agent
+
 LABEL maintainer "Jacek Kleczkowski <jacek@ksoft.biz>"
 
 # image is based on Ubuntu 15 - fix for .NET Core installation
 ADD libicu52_52.1-8_amd64.deb /tmp/libicu52_52.1-8_amd64.deb
+
 RUN dpkg -i /tmp/libicu52_52.1-8_amd64.deb
 
 # install .NET Core
@@ -11,26 +13,26 @@ RUN apt-get update && \
     export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true && \
     wget -q https://packages.microsoft.com/config/ubuntu/19.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb && dpkg -i packages-microsoft-prod.deb
 
-RUN apt-get install apt-transport-https && apt-get update
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y apt-transport-https apt-utils  && apt-get update
 
 RUN apt-get upgrade -y
 
-RUN apt-get install tzdata -y 
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y tzdata
 
 # install .NET Core
-ENV DOTNET_VER "dotnet-sdk-2.1"
+ENV DOTNET_VER "dotnet-sdk-2.2"
 
-#RUN apt-cache search dotnet-sdk
+#RUN apt-cache search dotnet-sdk-2.2 aspnetcore-runtime-2.2
 
-#(apt-cache search dotnet-dev-2.1.0 | awk '{print $1}') | sh 
-RUN apt-get install ${DOTNET_VER} -y
+#(apt-cache search dotnet-dev-2.2.0 | awk '{print $1}') | sh 
+RUN DEBIAN_FRONTEND=noninteractive  apt-get install ${DOTNET_VER} -y
 
 # install mono-devel
-RUN apt-get install mono-devel mono-dbg mono-xbuild libmono-addins-* -y 
+RUN DEBIAN_FRONTEND=noninteractive  apt-get install mono-devel mono-dbg mono-xbuild libmono-addins-* -y 
 
 # install web tools which are required for "dotnet publish" command
 RUN apt remove nodejs npm
-RUN curl -sL https://deb.nodesource.com/setup_6.x | bash -
+RUN curl -sL https://deb.nodesource.com/setup_8.x | bash -
 
 RUN apt-get install nodejs -y && \
     npm install npm -g && \
@@ -42,6 +44,15 @@ RUN echo "deb http://ppa.launchpad.net/ansible/ansible/ubuntu trusty main" >> /e
     apt-get update && \
     apt-get install -y ansible
 
+#install ruby & packer
+RUN apt-get install -y ruby p7zip-full
+
+#installing packer
+RUN wget -q -O /tmp/packer.zip  https://releases.hashicorp.com/packer/1.3.3/packer_1.3.3_linux_amd64.zip && \
+    unzip /tmp/packer.zip -d /usr/bin && \
+    chmod 0755 /usr/bin/packer
+
+
 VOLUME /opt/buildagent/work
 VOLUME /opt/buildagent/logs
 VOLUME /data/teamcity_agent/conf
@@ -49,3 +60,6 @@ VOLUME /opt/buildagent/plugins
 
 ENV DOCKER_HOST ""
 ENV DOCKER_BIN "/usr/bin/docker"
+
+#RUN packer --version
+
