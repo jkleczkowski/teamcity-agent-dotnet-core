@@ -1,6 +1,6 @@
 FROM jetbrains/teamcity-agent
 
-LABEL maintainer "Jacek Kleczkowski <jacek@ksoft.biz>"
+LABEL maintainer "Jacek K <support@ksoft.biz>"
 
 # image is based on Ubuntu 15 - fix for .NET Core installation
 ADD libicu52_52.1-8_amd64.deb /tmp/libicu52_52.1-8_amd64.deb
@@ -25,7 +25,7 @@ ENV DOTNET_VER "dotnet-sdk-2.2"
 #RUN apt-cache search dotnet-sdk-2.2 aspnetcore-runtime-2.2
 
 #(apt-cache search dotnet-dev-2.2.0 | awk '{print $1}') | sh 
-RUN DEBIAN_FRONTEND=noninteractive  apt-get install ${DOTNET_VER} -y
+RUN DEBIAN_FRONTEND=noninteractive  apt-get install dotnet-sdk-2.1 -y && apt-get install dotnet-sdk-2.2 -y
 
 # install mono-devel
 RUN DEBIAN_FRONTEND=noninteractive  apt-get install mono-devel mono-dbg mono-xbuild libmono-addins-* -y 
