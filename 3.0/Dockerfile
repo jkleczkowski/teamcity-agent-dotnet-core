@@ -2,18 +2,29 @@ FROM jetbrains/teamcity-agent
 
 LABEL maintainer "Jacek K <support@ksoft.biz>"
 
-# image is based on Ubuntu 15 - fix for .NET Core installation
-ADD libicu52_52.1-8_amd64.deb /tmp/libicu52_52.1-8_amd64.deb
+RUN export DEBIAN_FRONTEND=noninteractive && \
+    export DEBCONF_NONINTERACTIVE_SEEN=true 
 
-RUN dpkg -i /tmp/libicu52_52.1-8_amd64.deb
+# detecting ubuntu version
+#RUN echo "$(lsb_release -r | egrep -o '([0-9]{1,2}\.[0-9]{1,2})' 2>&1)"
+#RUN export SYS_VER=00.00
+#RUN echo "Current ubuntu version is: ${SYS_VER}"
+
+#RUN SYSVER="$(lsb_release -r | egrep -o '([0-9]{1,2}\.[0-9]{1,2})'  2>&1)"
+# RUN SYSVER=$(lsb_release -r)
+
+#RUN echo "Current ubuntu version is: ${SYSVER}"
 
 # install .NET Core
-RUN apt-get update && \
-    apt-get install mc wget -y && \
-    export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true && \
-    wget -q https://packages.microsoft.com/config/ubuntu/19.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb && dpkg -i packages-microsoft-prod.deb
+RUN apt-get update 
 
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y apt-transport-https apt-utils  && apt-get update
+RUN apt-get install apt-utils wget -y 
+
+RUN wget -q https://packages.microsoft.com/config/ubuntu/$(lsb_release -r | egrep -o '([0-9]{1,2}\.[0-9]{1,2})' 2>&1)/packages-microsoft-prod.deb -O packages-microsoft-prod.deb && \
+    dpkg -i packages-microsoft-prod.deb
+
+RUN apt-get update && \
+    apt-get install -y apt-transport-https apt-utils 
 
 RUN apt-get upgrade -y
 
@@ -21,10 +32,13 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y tzdata
 
 # install .NET Core
 ENV DOTNET_VER "dotnet-sdk-3.0"
-
+ENV DOTNET_CLI_TELEMETRY_OPTOUT=1
+RUN export  DOTNET_CLI_TELEMETRY_OPTOUT=1
 #RUN apt-cache search dotnet-sdk-2.2 aspnetcore-runtime-2.2
 
 #(apt-cache search dotnet-dev-2.2.0 | awk '{print $1}') | sh 
+RUN DEBIAN_FRONTEND=noninteractive  apt-get install dotnet-sdk-2.1 -y 
+RUN DEBIAN_FRONTEND=noninteractive  apt-get install dotnet-sdk-2.2 -y 
 RUN DEBIAN_FRONTEND=noninteractive  apt-get install dotnet-sdk-3.0 -y 
 
 # install mono-devel
@@ -32,7 +46,7 @@ RUN DEBIAN_FRONTEND=noninteractive  apt-get install mono-devel mono-dbg mono-xbu
 
 # install web tools which are required for "dotnet publish" command
 RUN apt remove nodejs npm
-RUN curl -sL https://deb.nodesource.com/setup_8.x | bash -
+RUN curl -sL https://deb.nodesource.com/setup_13.x | bash -
 
 RUN apt-get install nodejs -y && \
     npm install npm -g && \
