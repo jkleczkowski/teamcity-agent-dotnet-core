@@ -64,7 +64,8 @@ RUN apt-get install -y ruby p7zip-full
 #installing packer
 RUN wget -q -O /tmp/packer.zip  https://releases.hashicorp.com/packer/1.3.3/packer_1.3.3_linux_amd64.zip && \
     unzip /tmp/packer.zip -d /usr/bin && \
-    chmod 0755 /usr/bin/packer
+    chmod 0755 /usr/bin/packer && \
+    rm -f -r /tmp/*
 
 
 VOLUME /opt/buildagent/work
