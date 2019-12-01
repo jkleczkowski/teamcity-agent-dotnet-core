@@ -1,4 +1,5 @@
 FROM jetbrains/teamcity-agent
+#FROM jetbrains/teamcity-minimal-agent
 
 LABEL maintainer "Jacek K <support@ksoft.biz>"
 
@@ -64,8 +65,7 @@ RUN apt-get install -y ruby p7zip-full
 #installing packer
 RUN wget -q -O /tmp/packer.zip  https://releases.hashicorp.com/packer/1.3.3/packer_1.3.3_linux_amd64.zip && \
     unzip /tmp/packer.zip -d /usr/bin && \
-    chmod 0755 /usr/bin/packer && \
-    rm -f -r /tmp/*
+    chmod 0755 /usr/bin/packer 
 
 
 # Install PowerShell global tool
@@ -81,18 +81,22 @@ RUN curl -SL --output PowerShell.Linux.x64.$POWERSHELL_VERSION.nupkg https://pws
     && ln -s /usr/share/powershell/pwsh /usr/bin/pwsh \
     && chmod 755 /usr/share/powershell/pwsh \
     # To reduce image size, remove the copy nupkg that nuget keeps.
-    && find /usr/share/powershell -print | grep -i '.*[.]nupkg$' | xargs rm
+    && find /usr/share/powershell -print | grep -i '.*[.]nupkg$' | xargs rm && \
+    rm -f -r /tmp/*
+
+RUN apt-get install docker.io containerd -y
+RUN apt-get install mc -y
 
 VOLUME [/opt/buildagent/work, /opt/buildagent/logs, /data/teamcity_agent/conf, /opt/buildagent/plugins ]
 
-ENV DOCKER_HOST   \
-    DOCKER_BIN "/usr/bin/docker" \
-    # Enable detection of running in a container
-    DOTNET_RUNNING_IN_CONTAINER=true \
-    # Enable correct mode for dotnet watch (only mode supported in a container)
-    DOTNET_USE_POLLING_FILE_WATCHER=true \
-    # Skip extraction of XML docs - generally not useful within an image/container - helps performance
-    NUGET_XMLDOC_MODE=skip
+ENV DOCKER_BIN /usr/bin/docker 
+# Enable detection of running in a container
+ENV DOTNET_RUNNING_IN_CONTAINER=true 
+# Enable correct mode for dotnet watch (only mode supported in a container)
+ENV DOTNET_USE_POLLING_FILE_WATCHER=true 
+# Skip extraction of XML docs - generally not useful within an image/container - helps performance
+ENV NUGET_XMLDOC_MODE=skip
+
 
 #RUN packer --version
 
