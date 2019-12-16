@@ -5,59 +5,61 @@ WORKDIR /
 
 RUN apt-get update && apt-get upgrade -y 
 
-RUN apt-get install wget curl mc unzip git mercurial openjdk-11-jdk -y --no-install-recommends
-RUN apt-get install apt-transport-https apt-utils lxc iptables ca-certificates docker.io   -y --no-install-recommends
-RUN wget -q https://packages.microsoft.com/config/debian/10/packages-microsoft-prod.deb -O /tmp/packages-microsoft-prod.deb && \
-    dpkg -i /tmp/packages-microsoft-prod.deb && rm -f /tmp/packages-microsoft-prod.deb && apt update
-
-
-RUN curl -o /tmp/buildAgent.zip -k https://teamcity.ksoft.biz/update/buildAgent.zip
-RUN unzip /tmp/buildAgent.zip -d /opt/buildagent && \
-    mkdir -p /data/teamcity_agent/conf
-
-COPY  root/ /
-#RUN chmod 0755 /run-*.sh /services/*
-
-
-# RUN ls -al /
-# install .NET Core
-
-RUN DEBIAN_FRONTEND=noninteractive DOTNET_CLI_TELEMETRY_OPTOUT=1 apt-get install dotnet-sdk-2.1 -y 
-RUN DEBIAN_FRONTEND=noninteractive DOTNET_CLI_TELEMETRY_OPTOUT=1 apt-get install dotnet-sdk-2.2 -y 
-RUN DEBIAN_FRONTEND=noninteractive DOTNET_CLI_TELEMETRY_OPTOUT=1 apt-get install dotnet-sdk-3.0 -y 
-RUN DEBIAN_FRONTEND=noninteractive DOTNET_CLI_TELEMETRY_OPTOUT=1 apt-get install dotnet-sdk-3.1 -y 
-
-# RUN sh -c 'echo "deb [arch=amd64] http://apt-mo.trafficmanager.net/repos/dotnet-release/ trusty main" > /etc/apt/sources.list.d/dotnetdev.list' && \
-#     apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 417A0893 && \
-#     apt-get update && \
-#     apt-get install mc -y && \
-#     apt-get upgrade -y && \
-#     export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true 
+RUN apt-get install -y \
+    wget curl mc \
+    unzip \
+    git \
+    mercurial \
+    openjdk-11-jdk \
+    apt-transport-https \
+    apt-utils \
+    lxc \
+    iptables \
+    ca-certificates \
+    docker.io \
+    --no-install-recommends && \
+    # add-apt-repository ppa:ansible/ansible-2.9 && \
+    wget -q https://packages.microsoft.com/config/debian/10/packages-microsoft-prod.deb -O /tmp/packages-microsoft-prod.deb && \
+    #wget -q https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb -O /tmp/packages-microsoft-prod.deb && \
+    dpkg -i /tmp/packages-microsoft-prod.deb && rm -f /tmp/packages-microsoft-prod.deb && \
+    apt update && \
+    # # install dotnet
+    DEBIAN_FRONTEND=noninteractive DOTNET_CLI_TELEMETRY_OPTOUT=1 apt-get install -y \
+    dotnet-sdk-2.1 \
+    dotnet-sdk-2.2 \
+    dotnet-sdk-3.0 \
+    dotnet-sdk-3.1 && \
+    # # install mono-devel
+    apt-get install -y \
+    mono-devel mono-xbuild \
+    libmono-addins-* \
+    build-essential \
+    libssl-dev \
+    libffi-dev \
+    python3-dev \ 
+    python3-venv \
+    #install ruby & packer
+    ruby p7zip-full
 
 # RUN apt-get install tzdata -y 
-
-# # install .NET Core
-# ENV DOTNET_VER "dotnet-sdk-2.0.0"
-# #(apt-cache search dotnet-dev-2.0.0 | awk '{print $1}') | sh 
-# RUN apt-get install ${DOTNET_VER} -y
-
-# # install mono-devel
-RUN apt-get install mono-devel mono-xbuild libmono-addins-* -y 
 
 # # install web tools which are required for "dotnet publish" command
 # # install nodejs, gcc, g++ yarn build-essantials
 RUN curl -sL https://deb.nodesource.com/setup_13.x | bash -  && \
     apt-get install -y nodejs gcc g++ yarn build-essential && \
-    npm i -g npm bower gulp
+    npm i -g npm bower gulp @angular/cli
 
 # install ansible
-RUN echo "deb http://ppa.launchpad.net/ansible/ansible/ubuntu trusty main" >> /etc/apt/sources.list && \
-    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 93C4A3FD7BB9C367 && \
-    apt-get update && \
-    apt-get install -y ansible
+#RUN add-apt-repository ppa:ansible/ansible-2.9 && \
+#RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    libkrb5-dev \
+    python-pip \
+    krb5-user && \
+    pip install pywinrm && \
+    pip install ansible
 
-#install ruby & packer
-RUN apt-get install -y ruby p7zip-full
+RUN ansible --version
 
 # Install PowerShell global tool
 ENV POWERSHELL_VERSION=7.0.0-preview.4 \
@@ -75,10 +77,25 @@ RUN curl -SL --output PowerShell.Linux.x64.$POWERSHELL_VERSION.nupkg https://pws
     && find /usr/share/powershell -print | grep -i '.*[.]nupkg$' | xargs rm && \
     rm -f -r /tmp/*
 
+# installing build agent
+RUN curl -o /tmp/buildAgent.zip -k https://teamcity.ksoft.biz/update/buildAgent.zip
+RUN unzip /tmp/buildAgent.zip -d /opt/buildagent && \
+    mkdir -p /data/teamcity_agent/conf && \
+    rm -f -r /tmp/*
+COPY  root/ /
+#RUN chmod 0755 /run-*.sh /services/*
+
+#installing packer
+RUN wget -q -O /tmp/packer.zip  https://releases.hashicorp.com/packer/1.4.5/packer_1.4.5_linux_amd64.zip && \
+    unzip /tmp/packer.zip -d /usr/bin && \ 
+    rm -f -r /tmp/* && \
+    chmod 0755 /usr/bin/packer 
+
+
 #RUN apt-get remove --purge -y $BUILD_PACKAGES $(apt-mark showauto) && rm -rf /var/lib/apt/lists/*
 VOLUME [ /var/lib/docker, /opt/buildagent/work, /opt/buildagent/logs, /data/teamcity_agent/conf, /opt/buildagent/plugins ]
 
-ENV DOCKER_HOST ""
+ENV DOCKER_HOST "unix:///var/run/docker.sock"
 ENV DOCKER_BIN "/usr/bin/docker"
 ENV DOCKER_IN_DOCKER start
 ENV DOTNET_CLI_TELEMETRY_OPTOUT=1

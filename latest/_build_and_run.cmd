@@ -1,5 +1,6 @@
 docker build -t jkleczkowski/teamcity-agent-dotnet-core:next .
 
+@rem 
 docker rm tca --force
 
 @rem 
