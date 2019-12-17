@@ -1,9 +1,21 @@
 FROM debian:buster
 #LABEL maintainer "Jacek Kleczkowski <jacek@ksoft.biz>"
 
+#RUN apt-get remove --purge -y $BUILD_PACKAGES $(apt-mark showauto) && rm -rf /var/lib/apt/lists/*
+VOLUME [ /var/lib/docker, /opt/buildagent/work, /opt/buildagent/logs, /data/teamcity_agent/conf, /opt/buildagent/plugins ]
+
+ENV DOCKER_HOST "unix:///var/run/docker.sock"
+ENV DOCKER_BIN "/usr/bin/docker"
+ENV DOCKER_IN_DOCKER start
+ENV DOTNET_CLI_TELEMETRY_OPTOUT=1
+
+EXPOSE 9090
+# RUN  cat /opt/buildagent/bin/agent.sh
+ENTRYPOINT [ "/bin/bash","/run-services.sh" ]
+
 WORKDIR /
 
-RUN apt-get update && apt-get upgrade -y 
+RUN apt-get update 
 
 RUN apt-get install -y \
     wget curl mc \
@@ -22,15 +34,11 @@ RUN apt-get install -y \
     wget -q https://packages.microsoft.com/config/debian/10/packages-microsoft-prod.deb -O /tmp/packages-microsoft-prod.deb && \
     #wget -q https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb -O /tmp/packages-microsoft-prod.deb && \
     dpkg -i /tmp/packages-microsoft-prod.deb && rm -f /tmp/packages-microsoft-prod.deb && \
-    apt-get update && \
-    # # install dotnet
-    DEBIAN_FRONTEND=noninteractive DOTNET_CLI_TELEMETRY_OPTOUT=1 apt-get install -y \
-    dotnet-sdk-2.1 \
-    dotnet-sdk-2.2 \
-    dotnet-sdk-3.0 \
-    dotnet-sdk-3.1 && \
+    apt-get update 
+
+# # install dotnet
+RUN DEBIAN_FRONTEND=noninteractive DOTNET_CLI_TELEMETRY_OPTOUT=1 apt-get install -y \
     # # install mono-devel
-    apt-get install -y \
     mono-devel mono-xbuild \
     libmono-addins-* \
     build-essential \
@@ -40,8 +48,6 @@ RUN apt-get install -y \
     python3-venv \
     #install ruby & packer
     ruby p7zip-full
-
-# RUN apt-get install tzdata -y 
 
 # # install web tools which are required for "dotnet publish" command
 # # install nodejs, gcc, g++ yarn build-essantials
@@ -57,51 +63,44 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
     python-pip \
     krb5-user && \
     pip install pywinrm && \
-    pip install ansible
+    pip install ansible && \
+    apt-get clean
 
-RUN ansible --version
+#installing packer
+RUN wget -q -O /tmp/packer.zip  https://releases.hashicorp.com/packer/1.4.5/packer_1.4.5_linux_amd64.zip && \
+    unzip /tmp/packer.zip -d /usr/bin && \ 
+    # rm -f -r /tmp/* && \
+    chmod 0755 /usr/bin/packer && \
+    # installing build agent
+    curl -o /tmp/buildAgent.zip -k https://teamcity.ksoft.biz/update/buildAgent.zip && \
+    unzip /tmp/buildAgent.zip -d /opt/buildagent && \
+    mkdir -p /data/teamcity_agent/conf && \
+    rm -f -r /tmp/*
+COPY root/ /
+RUN chmod 0755 /run-*.sh /services/*
+
+#ARG CORE_VERSIONS="dotnet-sdk-2.1 dotnet-sdk-2.2 dotnet-sdk-3.0 dotnet-sdk-3.1"
+ARG CORE_VERSIONS="dotnet-sdk-3.1"
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y ${CORE_VERSIONS}
 
 # Install PowerShell global tool
-ENV POWERSHELL_VERSION=7.0.0-preview.4 \
+ENV POWERSHELL_VERSION=7.0.0-rc.1 \
     POWERSHELL_DISTRIBUTION_CHANNEL=PSDocker-DotnetCoreSDK-Debian-10
 
 RUN curl -SL --output PowerShell.Linux.x64.$POWERSHELL_VERSION.nupkg https://pwshtool.blob.core.windows.net/tool/$POWERSHELL_VERSION/PowerShell.Linux.x64.$POWERSHELL_VERSION.nupkg \
-    && powershell_sha512='0fb0167e13560371bffec38a4a87bf39377fa1a5cc39b3a078ddec8803212bede73e5821861036ba5c345bd55c74703134c9b55c49385f87dae9e2de9239f5d9' \
-    && echo "$powershell_sha512  PowerShell.Linux.x64.$POWERSHELL_VERSION.nupkg" | sha512sum -c - \
+    # && powershell_sha512='0fb0167e13560371bffec38a4a87bf39377fa1a5cc39b3a078ddec8803212bede73e5821861036ba5c345bd55c74703134c9b55c49385f87dae9e2de9239f5d9' \
+    # && echo "$powershell_sha512  PowerShell.Linux.x64.$POWERSHELL_VERSION.nupkg" | sha512sum -c - \
     && mkdir -p /usr/share/powershell \
     && dotnet tool install --add-source / --tool-path /usr/share/powershell --version $POWERSHELL_VERSION PowerShell.Linux.x64 \
     && rm PowerShell.Linux.x64.$POWERSHELL_VERSION.nupkg \
     && ln -s /usr/share/powershell/pwsh /usr/bin/pwsh \
     && chmod 755 /usr/share/powershell/pwsh \
     # To reduce image size, remove the copy nupkg that nuget keeps.
-    && find /usr/share/powershell -print | grep -i '.*[.]nupkg$' | xargs rm && \
-    rm -f -r /tmp/*
-
-# installing build agent
-RUN curl -o /tmp/buildAgent.zip -k https://teamcity.ksoft.biz/update/buildAgent.zip
-RUN unzip /tmp/buildAgent.zip -d /opt/buildagent && \
-    mkdir -p /data/teamcity_agent/conf && \
-    rm -f -r /tmp/*
-COPY  root/ /
-#RUN chmod 0755 /run-*.sh /services/*
-
-#installing packer
-RUN wget -q -O /tmp/packer.zip  https://releases.hashicorp.com/packer/1.4.5/packer_1.4.5_linux_amd64.zip && \
-    unzip /tmp/packer.zip -d /usr/bin && \ 
-    rm -f -r /tmp/* && \
-    chmod 0755 /usr/bin/packer 
+    && find /usr/share/powershell -print | grep -i '.*[.]nupkg$' | xargs rm \
+    && rm -f -r /tmp/*
 
 
-#RUN apt-get remove --purge -y $BUILD_PACKAGES $(apt-mark showauto) && rm -rf /var/lib/apt/lists/*
-VOLUME [ /var/lib/docker, /opt/buildagent/work, /opt/buildagent/logs, /data/teamcity_agent/conf, /opt/buildagent/plugins ]
 
-ENV DOCKER_HOST "unix:///var/run/docker.sock"
-ENV DOCKER_BIN "/usr/bin/docker"
-ENV DOCKER_IN_DOCKER start
-ENV DOTNET_CLI_TELEMETRY_OPTOUT=1
-
-EXPOSE 9090
-# RUN  cat /opt/buildagent/bin/agent.sh
-ENTRYPOINT [ "/run-services.sh" ]
+RUN apt-get upgrade -y 
 
 
