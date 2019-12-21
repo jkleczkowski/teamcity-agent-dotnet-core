@@ -2,7 +2,11 @@ FROM debian:buster
 #LABEL maintainer "Jacek Kleczkowski <jacek@ksoft.biz>"
 
 #RUN apt-get remove --purge -y $BUILD_PACKAGES $(apt-mark showauto) && rm -rf /var/lib/apt/lists/*
-VOLUME [ /var/lib/docker, /opt/buildagent/work, /opt/buildagent/logs, /data/teamcity_agent/conf, /opt/buildagent/plugins ]
+VOLUME /var/lib/docker
+VOLUME /opt/buildagent/work
+VOLUME /opt/buildagent/logs
+VOLUME /data/teamcity_agent/conf
+VOLUME /opt/buildagent/plugins
 
 ENV DOCKER_HOST "unix:///var/run/docker.sock"
 ENV DOCKER_BIN "/usr/bin/docker"
@@ -36,10 +40,11 @@ RUN apt-get install -y \
     dpkg -i /tmp/packages-microsoft-prod.deb && rm -f /tmp/packages-microsoft-prod.deb && \
     apt-get update 
 
-# # install dotnet
+# # install build tools
 RUN DEBIAN_FRONTEND=noninteractive DOTNET_CLI_TELEMETRY_OPTOUT=1 apt-get install -y \
+    --no-install-recommends \
     # # install mono-devel
-    mono-devel mono-xbuild \
+    mono-devel mono-xbuild maven \
     libmono-addins-* \
     build-essential \
     libssl-dev \
@@ -55,7 +60,7 @@ RUN curl -sL https://deb.nodesource.com/setup_13.x | bash -  && \
     apt-get install -y nodejs gcc g++ yarn build-essential && \
     npm i -g npm bower gulp @angular/cli
 
-# install ansible
+# install ansible & maven
 #RUN add-apt-repository ppa:ansible/ansible-2.9 && \
 #RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
@@ -75,6 +80,8 @@ RUN wget -q -O /tmp/packer.zip  https://releases.hashicorp.com/packer/1.4.5/pack
     curl -o /tmp/buildAgent.zip -k https://teamcity.ksoft.biz/update/buildAgent.zip && \
     unzip /tmp/buildAgent.zip -d /opt/buildagent && \
     mkdir -p /data/teamcity_agent/conf && \
+    cp -r /opt/buildagent/conf /opt/buildagent/conf_dist && \
+    # ls -al /opt/buildagent/conf_dist/ && \
     rm -f -r /tmp/*
 COPY root/ /
 RUN chmod 0755 /run-*.sh /services/*
