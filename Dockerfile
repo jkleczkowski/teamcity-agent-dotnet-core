@@ -66,10 +66,12 @@ RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -  && \
 #RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
     libkrb5-dev \
-    python-pip \
+    python3-pip \
     krb5-user && \
-    pip install pywinrm && \
-    pip install ansible && \
+    python3 -m pip install --upgrade pip && \
+    python3 -m pip install ansible && \
+    python3 -m pip install pywinrm && \
+    python3 -m pip install requests-kerberos && \
     apt-get clean
 
 #installing packer
