@@ -51,7 +51,7 @@ RUN DEBIAN_FRONTEND=noninteractive DOTNET_CLI_TELEMETRY_OPTOUT=1 apt-get install
     libssl-dev \
     libffi-dev \
     python-dev \ 
-    python-venv \
+#    python-venv \
     #install ruby & packer
     ruby p7zip-full
 
