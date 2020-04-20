@@ -57,7 +57,7 @@ RUN DEBIAN_FRONTEND=noninteractive DOTNET_CLI_TELEMETRY_OPTOUT=1 apt-get install
 
 # # install web tools which are required for "dotnet publish" command
 # # install nodejs, gcc, g++ yarn build-essantials
-RUN curl -sL https://deb.nodesource.com/setup_13.x | bash -  && \
+RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -  && \
     apt-get install -y nodejs gcc g++ yarn build-essential && \
     npm i -g npm bower gulp @angular/cli
 
