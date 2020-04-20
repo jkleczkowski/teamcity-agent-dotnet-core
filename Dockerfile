@@ -66,7 +66,7 @@ RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -  && \
 #RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
     libkrb5-dev \
-    python3-pip \
+    python-pip \
     krb5-user && \
     python -m pip install --upgrade pip && \
     python -m pip install ansible && \
