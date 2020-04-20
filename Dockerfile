@@ -50,8 +50,8 @@ RUN DEBIAN_FRONTEND=noninteractive DOTNET_CLI_TELEMETRY_OPTOUT=1 apt-get install
     build-essential \
     libssl-dev \
     libffi-dev \
-    python3-dev \ 
-    python3-venv \
+    python-dev \ 
+    python-venv \
     #install ruby & packer
     ruby p7zip-full
 
@@ -68,10 +68,14 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
     libkrb5-dev \
     python3-pip \
     krb5-user && \
-    python3 -m pip install --upgrade pip && \
-    python3 -m pip install ansible && \
-    python3 -m pip install pywinrm && \
-    python3 -m pip install requests-kerberos && \
+    python -m pip install --upgrade pip && \
+    python -m pip install ansible && \
+    python -m pip install pywinrm && \
+    python -m pip install pywinrm[kerberos] && \
+    python -m pip install kerberos && \
+    python -m pip install requests && \
+    python -m pip install requests-kerberos && \
+    python -m pip install --upgrade setuptools && \
     apt-get clean
 
 #installing packer
