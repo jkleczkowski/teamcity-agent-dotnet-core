@@ -32,6 +32,7 @@ RUN apt-get install -y \
     lxc \
     iptables \
     ca-certificates \
+    ssh \
     docker.io \
     --no-install-recommends && \
     # add-apt-repository ppa:ansible/ansible-2.9 && \
