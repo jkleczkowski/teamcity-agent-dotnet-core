@@ -66,17 +66,18 @@ RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -  && \
 #RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
     libkrb5-dev \
-    python-pip \
-    krb5-user && \
-    python -m pip install --use-deprecated=legacy-resolver --upgrade pip && \
-    python -m pip install --use-deprecated=legacy-resolver ansible && \
-    python -m pip install --use-deprecated=legacy-resolver pywinrm && \
-    python -m pip install --use-deprecated=legacy-resolver pywinrm[kerberos] && \
-    python -m pip install --use-deprecated=legacy-resolver kerberos && \
-    python -m pip install --use-deprecated=legacy-resolver requests && \
-    python -m pip install --use-deprecated=legacy-resolver requests-kerberos && \
-    python -m pip install --use-deprecated=legacy-resolver --upgrade setuptools && \
-    apt-get clean
+    python3-pip \
+    krb5-user 
+
+RUN python3 -m pip install --upgrade pip 
+RUN python3 -m pip install ansible 
+RUN python3 -m pip install pywinrm 
+RUN python3 -m pip install pywinrm[kerberos] 
+RUN python3 -m pip install kerberos 
+RUN python3 -m pip install requests 
+RUN python3 -m pip install requests-kerberos 
+RUN python3 -m pip install --upgrade setuptools 
+RUN apt-get clean
 
 #installing packer
 RUN wget -q -O /tmp/packer.zip  https://releases.hashicorp.com/packer/1.4.5/packer_1.4.5_linux_amd64.zip && \
