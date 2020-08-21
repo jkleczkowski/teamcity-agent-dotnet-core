@@ -113,6 +113,8 @@ RUN curl -SL --output PowerShell.Linux.x64.$POWERSHELL_VERSION.nupkg https://pws
     && find /usr/share/powershell -print | grep -i '.*[.]nupkg$' | xargs rm \
     && rm -f -r /tmp/*
 
+#dodanie kubectl
+RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
 
 
 RUN apt-get upgrade -y 
