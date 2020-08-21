@@ -68,14 +68,14 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
     libkrb5-dev \
     python-pip \
     krb5-user && \
-    python --use-deprecated=legacy-resolver -m pip install --upgrade pip && \
-    python --use-deprecated=legacy-resolver -m pip install ansible && \
-    python --use-deprecated=legacy-resolver -m pip install pywinrm && \
-    python --use-deprecated=legacy-resolver -m pip install pywinrm[kerberos] && \
-    python --use-deprecated=legacy-resolver -m pip install kerberos && \
-    python --use-deprecated=legacy-resolver -m pip install requests && \
-    python --use-deprecated=legacy-resolver -m pip install requests-kerberos && \
-    python --use-deprecated=legacy-resolver -m pip install --upgrade setuptools && \
+    python -m pip install --use-deprecated=legacy-resolver --upgrade pip && \
+    python -m pip install --use-deprecated=legacy-resolver ansible && \
+    python -m pip install --use-deprecated=legacy-resolver pywinrm && \
+    python -m pip install --use-deprecated=legacy-resolver pywinrm[kerberos] && \
+    python -m pip install --use-deprecated=legacy-resolver kerberos && \
+    python -m pip install --use-deprecated=legacy-resolver requests && \
+    python -m pip install --use-deprecated=legacy-resolver requests-kerberos && \
+    python -m pip install --use-deprecated=legacy-resolver --upgrade setuptools && \
     apt-get clean
 
 #installing packer
