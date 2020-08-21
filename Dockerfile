@@ -68,14 +68,14 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
     libkrb5-dev \
     python-pip \
     krb5-user && \
-    python -m pip install --upgrade pip && \
-    python -m pip install ansible && \
-    python -m pip install pywinrm && \
-    python -m pip install pywinrm[kerberos] && \
-    python -m pip install kerberos && \
-    python -m pip install requests && \
-    python -m pip install requests-kerberos && \
-    python -m pip install --upgrade setuptools && \
+    python--use-deprecated=legacy-resolver -m pip install --upgrade pip && \
+    python--use-deprecated=legacy-resolver -m pip install ansible && \
+    python--use-deprecated=legacy-resolver -m pip install pywinrm && \
+    python--use-deprecated=legacy-resolver -m pip install pywinrm[kerberos] && \
+    python--use-deprecated=legacy-resolver -m pip install kerberos && \
+    python--use-deprecated=legacy-resolver -m pip install requests && \
+    python--use-deprecated=legacy-resolver -m pip install requests-kerberos && \
+    python--use-deprecated=legacy-resolver -m pip install --upgrade setuptools && \
     apt-get clean
 
 #installing packer
