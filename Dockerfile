@@ -64,7 +64,7 @@ RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -  && \
 # Install yarn after installing npm
 RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -  && \
     echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list && \
-    apt update && apt install yarn
+    apt-get update && apt-get install yarn -y
 
 # install ansible & maven
 #RUN add-apt-repository ppa:ansible/ansible-2.9 && \
@@ -74,15 +74,17 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
     python3-pip \
     krb5-user 
 
-RUN python3 -m pip install --upgrade pip 
-RUN python3 -m pip install ansible 
-RUN python3 -m pip install pywinrm 
-RUN python3 -m pip install pywinrm[kerberos] 
-RUN python3 -m pip install kerberos 
-RUN python3 -m pip install requests 
-RUN python3 -m pip install requests-kerberos 
-RUN python3 -m pip install --upgrade setuptools 
-RUN apt-get clean
+#RUN python3 -m pip install --upgrade pip 
+#RUN python3 -m pip install ansible 
+
+RUN python3 -m pip install --upgrade pip setuptools && \
+    python3 -m pip install ansible pywinrm pywinrm[kerberos] kerberos requests requests-kerberos 
+
+RUN ansible-galaxy collection install \
+    community.kubernetes \
+    community.crypto \
+    community.general \
+    community.libvirt
 
 #installing packer
 RUN wget -q -O /tmp/packer.zip  https://releases.hashicorp.com/packer/1.4.5/packer_1.4.5_linux_amd64.zip && \
@@ -123,6 +125,7 @@ RUN curl -SL --output PowerShell.Linux.x64.$POWERSHELL_VERSION.nupkg https://pws
 RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
 
 
-RUN apt-get upgrade -y 
-
+RUN apt-get upgrade -y && \
+    apt-get clean autoclean && \
+    rm -rf /var/lib/{apt,dpkg,cache,log}/
 
