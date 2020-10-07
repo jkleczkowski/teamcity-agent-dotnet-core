@@ -56,10 +56,15 @@ RUN DEBIAN_FRONTEND=noninteractive DOTNET_CLI_TELEMETRY_OPTOUT=1 apt-get install
     ruby p7zip-full
 
 # # install web tools which are required for "dotnet publish" command
-# # install nodejs, gcc, g++ yarn build-essantials
+# # install nodejs, gcc, g++ build-essantials
 RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -  && \
-    apt-get install -y nodejs gcc g++ yarn build-essential && \
+    apt-get install -y nodejs gcc g++ build-essential && \
     npm i -g npm bower gulp @angular/cli
+
+# Install yarn after installing npm
+RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -  && \
+    echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list && \
+    apt update && apt install yarn
 
 # install ansible & maven
 #RUN add-apt-repository ppa:ansible/ansible-2.9 && \
