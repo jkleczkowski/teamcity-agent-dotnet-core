@@ -102,11 +102,11 @@ COPY root/ /
 RUN chmod 0755 /run-*.sh /services/*
 
 #ARG CORE_VERSIONS="dotnet-sdk-2.1 dotnet-sdk-2.2 dotnet-sdk-3.0 dotnet-sdk-3.1"
-ARG CORE_VERSIONS="dotnet-sdk-3.1"
+ARG CORE_VERSIONS="dotnet-sdk-5.0"
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y ${CORE_VERSIONS}
 
 # Install PowerShell global tool
-ENV POWERSHELL_VERSION=7.0.0-rc.1 \
+ENV POWERSHELL_VERSION=7.1.0 \
     POWERSHELL_DISTRIBUTION_CHANNEL=PSDocker-DotnetCoreSDK-Debian-10
 
 RUN curl -SL --output PowerShell.Linux.x64.$POWERSHELL_VERSION.nupkg https://pwshtool.blob.core.windows.net/tool/$POWERSHELL_VERSION/PowerShell.Linux.x64.$POWERSHELL_VERSION.nupkg \
