@@ -11,7 +11,8 @@ VOLUME /opt/buildagent/plugins
 ENV DOCKER_HOST "unix:///var/run/docker.sock"
 ENV DOCKER_BIN "/usr/bin/docker"
 ENV DOCKER_IN_DOCKER start
-ENV DOTNET_CLI_TELEMETRY_OPTOUT=1
+ENV DOTNET_CLI_TELEMETRY_OPTOUT 1
+ENV AGENT_CONF_FILE_NAME "buildAgent.properties"
 
 EXPOSE 9090
 # RUN  cat /opt/buildagent/bin/agent.sh
@@ -57,7 +58,7 @@ RUN DEBIAN_FRONTEND=noninteractive DOTNET_CLI_TELEMETRY_OPTOUT=1 apt-get install
 
 # # install web tools which are required for "dotnet publish" command
 # # install nodejs, gcc, g++ build-essantials
-RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -  && \
+RUN curl -sL https://deb.nodesource.com/setup_16.x | bash -  && \
     apt-get install -y nodejs gcc g++ build-essential && \
     npm i -g npm bower gulp @angular/cli
 
@@ -110,8 +111,6 @@ ENV POWERSHELL_VERSION=7.1.0 \
     POWERSHELL_DISTRIBUTION_CHANNEL=PSDocker-DotnetCoreSDK-Debian-10
 
 RUN curl -SL --output PowerShell.Linux.x64.$POWERSHELL_VERSION.nupkg https://pwshtool.blob.core.windows.net/tool/$POWERSHELL_VERSION/PowerShell.Linux.x64.$POWERSHELL_VERSION.nupkg \
-    # && powershell_sha512='0fb0167e13560371bffec38a4a87bf39377fa1a5cc39b3a078ddec8803212bede73e5821861036ba5c345bd55c74703134c9b55c49385f87dae9e2de9239f5d9' \
-    # && echo "$powershell_sha512  PowerShell.Linux.x64.$POWERSHELL_VERSION.nupkg" | sha512sum -c - \
     && mkdir -p /usr/share/powershell \
     && dotnet tool install --add-source / --tool-path /usr/share/powershell --version $POWERSHELL_VERSION PowerShell.Linux.x64 \
     && rm PowerShell.Linux.x64.$POWERSHELL_VERSION.nupkg \

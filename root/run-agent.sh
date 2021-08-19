@@ -27,19 +27,19 @@ reconfigure() {
         opts[$i]="$(echo "${opts[$i]}" | sed -e 's/""/"/g')"
       done
       configure "${opts[@]}"
-      echo "File buildAgent.properties was updated"
+      echo "File ${AGENT_CONF_FILE_NAME} was updated"
     fi
     for AGENT_OPT in ${AGENT_OPTS}; do
-      echo ${AGENT_OPT} >>  ${CONFIG_DIR}/buildAgent.properties
+      echo ${AGENT_OPT} >>  ${CONFIG_DIR}/${AGENT_CONF_FILE_NAME}
     done
 }
 
 prepare_conf() {
     echo "Will prepare agent config" ;
     cp -p ${AGENT_DIST}/conf_dist/*.* ${CONFIG_DIR}/; check
-    cp -p ${CONFIG_DIR}/buildAgent.dist.properties ${CONFIG_DIR}/buildAgent.properties; check
+    cp -p ${CONFIG_DIR}/buildAgent.dist.properties ${CONFIG_DIR}/${AGENT_CONF_FILE_NAME}; check
     reconfigure
-    echo "File buildAgent.properties was created and updated" ;
+    echo "File ${AGENT_CONF_FILE_NAME} was created and updated" ;
 }
 
 AGENT_DIST=/opt/buildagent
@@ -51,12 +51,12 @@ LOG_DIR=/opt/buildagent/logs
 
 rm -f ${LOG_DIR}/*.pid
 
-if [ -f ${CONFIG_DIR}/buildAgent.properties ] ; then
-   echo "File buildAgent.properties was found in ${CONFIG_DIR}" ;
+if [ -f ${CONFIG_DIR}/${AGENT_CONF_FILE_NAME} ] ; then
+   echo "File ${AGENT_CONF_FILE_NAME} was found in ${CONFIG_DIR}" ;
    reconfigure
-   export CONFIG_FILE=${CONFIG_DIR}/buildAgent.properties
+   export CONFIG_FILE=${CONFIG_DIR}/${AGENT_CONF_FILE_NAME}
 else
-   echo "Will create new buildAgent.properties using distributive" ;
+   echo "Will create new ${AGENT_CONF_FILE_NAME} using distributive" ;
    if [[ -n "${SERVER_URL}" ]]; then
       echo "TeamCity URL is provided: ${SERVER_URL}"
    else
