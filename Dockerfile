@@ -1,4 +1,4 @@
-FROM debian:buster
+FROM debian:bullseye
 #LABEL maintainer "Jacek Kleczkowski <jacek@ksoft.biz>"
 
 #RUN apt-get remove --purge -y $BUILD_PACKAGES $(apt-mark showauto) && rm -rf /var/lib/apt/lists/*
@@ -35,9 +35,10 @@ RUN apt-get install -y \
     ca-certificates \
     ssh \
     docker.io \
+    ca-certificates curl gnupg \
     --no-install-recommends && \
     # add-apt-repository ppa:ansible/ansible-2.9 && \
-    wget -q https://packages.microsoft.com/config/debian/10/packages-microsoft-prod.deb -O /tmp/packages-microsoft-prod.deb && \
+    wget -q https://packages.microsoft.com/config/debian/12/packages-microsoft-prod.deb -O /tmp/packages-microsoft-prod.deb && \
     #wget -q https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb -O /tmp/packages-microsoft-prod.deb && \
     dpkg -i /tmp/packages-microsoft-prod.deb && rm -f /tmp/packages-microsoft-prod.deb && \
     apt-get update 
@@ -58,8 +59,9 @@ RUN DEBIAN_FRONTEND=noninteractive DOTNET_CLI_TELEMETRY_OPTOUT=1 apt-get install
 
 # # install web tools which are required for "dotnet publish" command
 # # install nodejs, gcc, g++ build-essantials
-RUN curl -sL https://deb.nodesource.com/setup_16.x | bash -  && \
-    apt-get install -y nodejs gcc g++ build-essential && \
+RUN mkdir -p /etc/apt/keyrings &&  curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg && \    
+    echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list && \
+    apt-get update && apt-get install nodejs gcc g++ build-essential -y && \    
     npm i -g npm bower gulp @angular/cli
 
 # Install yarn after installing npm
@@ -103,12 +105,12 @@ COPY root/ /
 RUN chmod 0755 /run-*.sh /services/*
 
 #ARG CORE_VERSIONS="dotnet-sdk-2.1 dotnet-sdk-2.2 dotnet-sdk-3.0 dotnet-sdk-3.1"
-ARG CORE_VERSIONS="dotnet-sdk-5.0"
+ARG CORE_VERSIONS="dotnet-sdk-7.0"
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y ${CORE_VERSIONS}
 
 # Install PowerShell global tool
-ENV POWERSHELL_VERSION=7.1.0 \
-    POWERSHELL_DISTRIBUTION_CHANNEL=PSDocker-DotnetCoreSDK-Debian-10
+ENV POWERSHELL_VERSION=7.3.0 \
+    POWERSHELL_DISTRIBUTION_CHANNEL=PSDocker-DotnetCoreSDK-Debian-12
 
 RUN curl -SL --output PowerShell.Linux.x64.$POWERSHELL_VERSION.nupkg https://pwshtool.blob.core.windows.net/tool/$POWERSHELL_VERSION/PowerShell.Linux.x64.$POWERSHELL_VERSION.nupkg \
     && mkdir -p /usr/share/powershell \
