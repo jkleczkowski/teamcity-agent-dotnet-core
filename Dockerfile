@@ -27,7 +27,7 @@ RUN apt-get install -y \
     unzip \
     git \
     mercurial \
-    openjdk-11-jdk \
+    openjdk-17-jdk \
     apt-transport-https \
     apt-utils \
     lxc \
