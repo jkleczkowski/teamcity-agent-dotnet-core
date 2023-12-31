@@ -1,4 +1,4 @@
-FROM debian:bullseye
+FROM debian:bookworm
 #LABEL maintainer "Jacek Kleczkowski <jacek@ksoft.biz>"
 
 #RUN apt-get remove --purge -y $BUILD_PACKAGES $(apt-mark showauto) && rm -rf /var/lib/apt/lists/*
