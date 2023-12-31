@@ -83,7 +83,7 @@ RUN ansible-galaxy collection install \
     community.libvirt
 
 #installing packer
-RUN wget -q -O /tmp/packer.zip  https://releases.hashicorp.com/packer/1.4.5/packer_1.4.5_linux_amd64.zip && \
+RUN wget -q -O /tmp/packer.zip  https://releases.hashicorp.com/packer/1.10.0/packer_1.10.0_linux_amd64.zip && \
     unzip /tmp/packer.zip -d /usr/bin && \ 
     # rm -f -r /tmp/* && \
     chmod 0755 /usr/bin/packer && \
