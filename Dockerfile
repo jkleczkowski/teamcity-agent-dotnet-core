@@ -37,7 +37,6 @@ RUN apt-get install -y \
     docker.io \
     ca-certificates curl gnupg \
     --no-install-recommends && \
-    # add-apt-repository ppa:ansible/ansible-2.9 && \
     wget -q https://packages.microsoft.com/config/debian/12/packages-microsoft-prod.deb -O /tmp/packages-microsoft-prod.deb && \
     #wget -q https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb -O /tmp/packages-microsoft-prod.deb && \
     dpkg -i /tmp/packages-microsoft-prod.deb && rm -f /tmp/packages-microsoft-prod.deb && \
@@ -71,10 +70,10 @@ RUN mkdir -p /etc/apt/keyrings &&  curl -fsSL https://deb.nodesource.com/gpgkey/
 RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -  && \
     echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list && \
     apt-get update && apt-get install yarn -y
-
+    
 
 RUN python3 -m pip install --upgrade pip setuptools && \
-    python3 -m pip install ansible pywinrm pywinrm[kerberos] kerberos requests requests-kerberos 
+    python3 -m pip install ansible pywinrm pywinrm[kerberos] kerberos requests requests-kerberos  
 
 RUN ansible-galaxy collection install \
     community.kubernetes \
@@ -98,7 +97,7 @@ COPY root/ /
 RUN chmod 0755 /run-*.sh /services/*
 
 #ARG CORE_VERSIONS="dotnet-sdk-2.1 dotnet-sdk-2.2 dotnet-sdk-3.0 dotnet-sdk-3.1"
-ARG CORE_VERSIONS="dotnet-sdk-7.0"
+ARG CORE_VERSIONS="dotnet-sdk-8.0"
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y ${CORE_VERSIONS}
 
 # Install PowerShell global tool
