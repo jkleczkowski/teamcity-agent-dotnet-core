@@ -52,10 +52,13 @@ RUN DEBIAN_FRONTEND=noninteractive DOTNET_CLI_TELEMETRY_OPTOUT=1 apt-get install
     build-essential \
     libssl-dev \
     libffi-dev \
-    python-dev \ 
-#    python-venv \
-    #install ruby & packer
-    ruby p7zip-full
+    python3-dev \
+    python3-full \
+    libkrb5-dev \
+    python3-pip \
+    krb5-user \
+    ruby p7zip-full && \
+    rm /usr/lib/python3.11/EXTERNALLY-MANAGED
 
 # # install web tools which are required for "dotnet publish" command
 # # install nodejs, gcc, g++ build-essantials
@@ -69,16 +72,6 @@ RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -  && \
     echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list && \
     apt-get update && apt-get install yarn -y
 
-# install ansible & maven
-#RUN add-apt-repository ppa:ansible/ansible-2.9 && \
-#RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
-    libkrb5-dev \
-    python3-pip \
-    krb5-user 
-
-#RUN python3 -m pip install --upgrade pip 
-#RUN python3 -m pip install ansible 
 
 RUN python3 -m pip install --upgrade pip setuptools && \
     python3 -m pip install ansible pywinrm pywinrm[kerberos] kerberos requests requests-kerberos 
